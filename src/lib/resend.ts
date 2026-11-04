@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 import { Booking, KidsConsultation } from './supabase';
 
-const resendApiKey = process.env.RESEND_API_KEY || 're_mock_key';
+const resendApiKey = process.env.RESEND_API_KEY || '';
 export const resend = new Resend(resendApiKey);
 
 const SENDER = process.env.RESEND_FROM_EMAIL || 'Kaffy Saloon <onboarding@resend.dev>';
