@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 const isProtectedRoute = createRouteMatcher(['/portal(.*)', '/admin(.*)']);
 
 export default function middleware(req: any, evt: any) {
-  // If Clerk secret key hasn't been added to Vercel yet, keep the public site fast and active
+  // If Clerk secret key hasn't been added yet, keep the public site fast and active
   if (!process.env.CLERK_SECRET_KEY) {
     if (isProtectedRoute(req)) {
       return NextResponse.redirect(new URL('/', req.url));

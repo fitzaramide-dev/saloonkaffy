@@ -20,15 +20,13 @@ export const metadata: Metadata = {
   description: "Malta's boutique pink penthouse hair studio specializing in knotless braids, Ghana weaving, box braids, weaves, and gentle kids hair.",
 };
 
-const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_aG9wZWZ1bC1sb3VzZS00OTk1LmNsZXJrLmFjY291bnRzLmRldiQ';
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider publishableKey={clerkKey}>
+    <ClerkProvider>
       <html lang="en" className={`${playfair.variable} ${jakarta.variable} scroll-smooth`}>
         <body className="bg-glam-page text-glam-plum font-sans antialiased selection:bg-glam-pink selection:text-white">
           {children}
