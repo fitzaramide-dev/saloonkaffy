@@ -1,17 +1,23 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 
-if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
-  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = 'pk_test_aG9wZWZ1bC1sb3VzZS00OTk1LmNsZXJrLmFjY291bnRzLmRldiQ';
-}
-
-// Define protected routes (Admin and Client Portal require sign-in)
 const isProtectedRoute = createRouteMatcher(['/portal(.*)', '/admin(.*)']);
 
-export default clerkMiddleware((auth, req) => {
-  if (isProtectedRoute(req)) {
-    auth().protect();
+export default function middleware(req: any, evt: any) {
+  // If Clerk secret key hasn't been added to Vercel yet, keep the public site fast and active
+  if (!process.env.CLERK_SECRET_KEY) {
+    if (isProtectedRoute(req)) {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
+    return NextResponse.next();
   }
-});
+
+  return clerkMiddleware((auth, r) => {
+    if (isProtectedRoute(r)) {
+      auth().protect();
+    }
+  })(req, evt);
+}
 
 export const config = {
   matcher: [
