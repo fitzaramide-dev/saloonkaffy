@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 59, 9, 30;
+  --background-start-rgb: 255, 240, 245;
+  --background-end-rgb: 255, 240, 245;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: #FFF0F5;
+  font-family: var(--font-jakarta), sans-serif;
+}
+
+/* Barbie & High-Glam Pink Styling */
+::selection {
+  background-color: #FF2A85;
+  color: #FFFFFF;
+}
+
+.pink-gradient-text {
+  background: linear-gradient(135deg, #FF2A85 0%, #E91E63 50%, #C2185B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.pink-gradient-btn {
+  background: linear-gradient(135deg, #FF2A85 0%, #E91E63 100%);
+}
+.pink-gradient-btn:hover {
+  background: linear-gradient(135deg, #E91E63 0%, #C2185B 100%);
+}
+
+.glass-nav {
+  background: rgba(255, 240, 245, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.pop-card {
+  box-shadow: 0 16px 36px -6px rgba(233, 30, 99, 0.16), 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.glow-pink {
+  box-shadow: 0 0 25px rgba(255, 42, 133, 0.35);
+}
