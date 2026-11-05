@@ -1129,7 +1129,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-white/60 gap-4 text-center sm:text-left">
-            <p>&copy; 2026 Kaffy Saloon. All rights reserved. 40, Anfield, Flat 2, Triq Brunzar, Santa Venera, Malta.</p>
+            <p>&copy; {new Date().getFullYear()} Kaffy Saloon. All rights reserved. 40, Anfield, Flat 2, Triq Brunzar, Santa Venera, Malta.</p>
             <p className="text-pink-300 font-semibold">Styles start from &euro;30 &bull; Boutique Penthouse Hair Sanctuary</p>
           </div>
         </div>
