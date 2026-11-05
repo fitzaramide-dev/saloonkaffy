@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useUser, UserButton } from '@clerk/nextjs';
 import { Booking } from '@/lib/supabase';
-import { Sparkles, Calendar, Clock, MapPin, AlertCircle, XCircle, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Calendar, Loader2, AlertCircle, Clock, MapPin, XCircle, RefreshCw, CheckCircle2 } from 'lucide-react';
 
 export default function ClientPortalPage() {
   const { user, isLoaded } = useUser();
@@ -34,6 +34,10 @@ export default function ClientPortalPage() {
   }
 
   async function handleCancel(booking: Booking) {
+    // [PROTECTION 1] DOUBLE-SUBMIT LOCK GUARD
+    if (cancellingId === booking.id) return;
+
+    // [PROTECTION 2] CLIENT-SIDE ADVANCE NOTICE VALIDATION
     const appointmentDate = new Date(`${booking.appointment_date}T${booking.start_time}`);
     const now = new Date();
     const hoursDifference = (appointmentDate.getTime() - now.getTime()) / (1000 * 60 * 60);
@@ -43,21 +47,33 @@ export default function ClientPortalPage() {
       return;
     }
 
-    if (!confirm('Are you sure you want to cancel this hair appointment?')) return;
+    if (!confirm(`Are you sure you want to cancel your appointment for ${booking.service_title} on ${booking.appointment_date}?`)) {
+      return;
+    }
 
+    // LOCK: Disable button & show transmitting state
     setCancellingId(booking.id);
+
+    // [PROTECTION 3] TRY / CATCH ERROR RESILIENCE
     try {
       const res = await fetch(`/api/bookings/${booking.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'cancelled' }),
       });
-      if (res.ok) {
-        alert('Your appointment has been cancelled. You are welcome to book another slot anytime!');
-        fetchBookings();
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Server was unable to cancel the booking. Please contact Kaffy directly.');
       }
-    } catch (err) {
+
+      // [PROTECTION 4] SUCCESS CONFIRMATION FLOW: Update state & notify
+      alert('Your appointment has been cancelled. You are welcome to book another slot anytime!');
+      fetchBookings();
+    } catch (err: any) {
       console.error('Cancellation error:', err);
+      alert(err?.message || 'Could not cancel appointment due to a network error. Please WhatsApp Kaffy directly.');
     } finally {
       setCancellingId(null);
     }
@@ -248,7 +264,11 @@ export default function ClientPortalPage() {
                           className="text-xs text-red-600 hover:text-red-800 font-bold flex items-center gap-1 transition-colors disabled:opacity-50"
                         >
                           <XCircle className="w-3.5 h-3.5" />
-                          {cancellingId === booking.id ? 'Cancelling...' : 'Cancel Appointment (24h Notice)'}
+                          {cancellingId === booking.id ? (
+                            <span className="flex items-center gap-1.5"><Loader2 className="w-3.5 h-3.5 animate-spin" /> Transmitting to Database...</span>
+                          ) : (
+                            'Cancel Appointment (24h Notice)'
+                          )}
                         </button>
                         <a
                           href={`https://wa.me/35677567349?text=Hi%20Kaffy,%20I'd%20like%20to%20reschedule%20my%20appointment%20for%20${booking.service_title}!`}

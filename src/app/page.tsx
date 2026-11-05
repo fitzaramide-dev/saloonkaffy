@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Sparkles, Phone, Menu, MessageCircle, ArrowRight, Check, CheckCircle, CheckCircle2, ShoppingBag, Droplets, Wind, Scissors, Baby, Heart, ShieldCheck, Coffee, Sun, ChevronDown, Copy, ExternalLink, Calendar, Clock, X, ZoomIn } from 'lucide-react';
+import { Sparkles, Phone, Menu, Loader2, AlertCircle, MessageCircle, ArrowRight, Check, CheckCircle, CheckCircle2, ShoppingBag, Droplets, Wind, Scissors, Baby, Heart, ShieldCheck, Coffee, Sun, ChevronDown, Copy, ExternalLink, Calendar, Clock, X, ZoomIn } from 'lucide-react';
 
 interface ServiceItem {
   id: string;
@@ -111,6 +111,54 @@ const FAQS = [
   }
 ];
 
+
+// ============================================================================
+// THE DOUBLE-SUBMIT & SILENT ERROR HARDENING ENGINE (SECURITY & RELIABILITY)
+// ============================================================================
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+function validateAndCleanPhone(phoneInput: string): { isValid: boolean; cleanPhone: string; error?: string } {
+  const raw = phoneInput.trim();
+  const digitsOnly = raw.replace(/[^0-9]/g, '');
+
+  if (!raw) {
+    return { isValid: false, cleanPhone: '', error: 'Phone / WhatsApp number is required.' };
+  }
+
+  // 1. Nigerian 11-digit local numbers starting with 080, 070, 081, 090, 091, 071, etc.
+  const nigLocalMatch = raw.match(/^(070|080|081|090|091|071|082)[0-9]{8}$/);
+  if (nigLocalMatch) {
+    return { isValid: true, cleanPhone: '+234' + raw.slice(1) };
+  }
+
+  // 2. Nigerian international format (+234 or 234 followed by 10 digits)
+  const nigIntlMatch = raw.match(/^(\+?234)(70|80|81|90|91|71|82)[0-9]{8}$/);
+  if (nigIntlMatch) {
+    const formatted = raw.startsWith('+') ? raw : '+' + raw;
+    return { isValid: true, cleanPhone: formatted };
+  }
+
+  // 3. Malta local & international format (+356 followed by 8 digits, typically starts with 7 or 9)
+  const maltaMatch = raw.match(/^(\+?356)?[79][0-9]{7}$/);
+  if (maltaMatch) {
+    if (raw.startsWith('+356')) return { isValid: true, cleanPhone: raw };
+    if (raw.startsWith('356')) return { isValid: true, cleanPhone: '+' + raw };
+    return { isValid: true, cleanPhone: '+356' + raw };
+  }
+
+  // 4. Standard E.164 International Phone Numbers (7 to 15 digits)
+  if (digitsOnly.length >= 7 && digitsOnly.length <= 15) {
+    const formatted = raw.startsWith('+') ? raw : '+' + raw.replace(/[^0-9]/g, '');
+    return { isValid: true, cleanPhone: formatted };
+  }
+
+  return {
+    isValid: false,
+    cleanPhone: raw,
+    error: 'Please enter a valid phone number (e.g. 11-digit 080... or +234... for Nigeria, or +356... for Malta).'
+  };
+}
+
 export default function HomePage() {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [copySuccess, setCopySuccess] = useState(false);
@@ -131,6 +179,8 @@ export default function HomePage() {
   const [bookingNotes, setBookingNotes] = useState('');
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [bookingError, setBookingError] = useState<string | null>(null);
+  const [confirmedBookingDetails, setConfirmedBookingDetails] = useState<{ name: string; service: string; date: string; time: string } | null>(null);
 
   // Kids Consultation Modal State
   const [isKidsModalOpen, setIsKidsModalOpen] = useState(false);
@@ -141,6 +191,8 @@ export default function HomePage() {
   const [desiredStyle, setDesiredStyle] = useState('');
   const [kidsLoading, setKidsLoading] = useState(false);
   const [kidsSuccess, setKidsSuccess] = useState(false);
+  const [kidsError, setKidsError] = useState<string | null>(null);
+  const [confirmedKidsParent, setConfirmedKidsParent] = useState<string>('');
 
   // Lightbox State
   const [lightboxItem, setLightboxItem] = useState<{ src: string; title: string; desc: string } | null>(null);
@@ -164,16 +216,57 @@ export default function HomePage() {
 
   async function handleBookingSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setBookingError(null);
+
+    // [PROTECTION 1] DOUBLE-SUBMISSION LOCK GUARD
+    if (bookingLoading) return;
+
+    // [PROTECTION 2] CLIENT-SIDE INPUT VALIDATION & SANITIZATION
+    const trimmedName = clientName.trim();
+    const trimmedEmail = clientEmail.trim();
+    const trimmedPhone = clientPhone.trim();
+
+    if (!trimmedName || trimmedName.length < 2) {
+      setBookingError('Full Name is required (minimum 2 characters).');
+      return;
+    }
+
+    if (!trimmedEmail || !EMAIL_REGEX.test(trimmedEmail)) {
+      setBookingError('Please enter a valid email address (e.g. yourname@example.com) to receive confirmation.');
+      return;
+    }
+
+    const phoneValidation = validateAndCleanPhone(trimmedPhone);
+    if (!phoneValidation.isValid) {
+      setBookingError(phoneValidation.error || 'Please enter a valid phone number.');
+      return;
+    }
+
+    if (!appointmentDate) {
+      setBookingError('Please select an appointment date.');
+      return;
+    }
+
+    // 24-Hour Notice Verification
+    const appointmentDateTime = new Date(`${appointmentDate}T${appointmentTime}`);
+    const minNotice = new Date(Date.now() + 23.5 * 60 * 60 * 1000);
+    if (appointmentDateTime < minNotice) {
+      setBookingError('Appointments must be booked at least 24 hours in advance. For emergency same-day appointments, please message Kaffy on WhatsApp.');
+      return;
+    }
+
+    // LOCK: Immediately disable UI & transition to transmitting state
     setBookingLoading(true);
 
+    // [PROTECTION 3] TRY / CATCH ERROR RESILIENCE
     try {
       const res = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          client_name: clientName,
-          client_email: clientEmail,
-          client_phone: clientPhone,
+          client_name: trimmedName,
+          client_email: trimmedEmail,
+          client_phone: phoneValidation.cleanPhone,
           service_id: selectedService.id,
           service_title: selectedService.title,
           price: selectedService.price,
@@ -182,48 +275,114 @@ export default function HomePage() {
           addons: selectedAddons,
           appointment_date: appointmentDate,
           start_time: appointmentTime,
-          notes: bookingNotes,
+          notes: bookingNotes.trim(),
         }),
       });
 
       const data = await res.json();
-      if (res.ok) {
-        setBookingSuccess(true);
-      } else {
-        alert(data.error || 'Something went wrong with your booking. Please try again.');
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Server rejected booking. Please verify your details and try again.');
       }
-    } catch (err) {
+
+      // [PROTECTION 4] SUCCESS CONFIRMATION FLOW: Reset form fields, unlock button & show success view
+      setConfirmedBookingDetails({
+        name: trimmedName,
+        service: selectedService.title,
+        date: appointmentDate,
+        time: appointmentTime,
+      });
+      setBookingSuccess(true);
+      setClientName('');
+      setClientEmail('');
+      setClientPhone('');
+      setBookingNotes('');
+      setSelectedAddons([]);
+      setBookingError(null);
+    } catch (err: any) {
       console.error('Booking submission error:', err);
-      alert('Could not submit booking right now. Please message Kaffy on WhatsApp!');
+      const friendlyMsg = err?.message?.includes('Failed to fetch')
+        ? 'Network connectivity issue. Please verify your internet connection or contact Kaffy directly on WhatsApp.'
+        : (err?.message || 'Unable to submit booking. Please try again or contact Kaffy directly.');
+      setBookingError(friendlyMsg);
     } finally {
+      // Ensure button unlocks if not in success state
       setBookingLoading(false);
     }
   }
 
   async function handleKidsSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setKidsError(null);
+
+    // [PROTECTION 1] DOUBLE-SUBMISSION LOCK GUARD
+    if (kidsLoading) return;
+
+    // [PROTECTION 2] CLIENT-SIDE INPUT VALIDATION & SANITIZATION
+    const trimmedParent = parentName.trim();
+    const trimmedPhone = parentPhone.trim();
+    const trimmedAge = childAge.trim();
+    const trimmedEmail = parentEmail.trim();
+
+    if (!trimmedParent || trimmedParent.length < 2) {
+      setKidsError('Parent / Guardian name is required.');
+      return;
+    }
+
+    const phoneValidation = validateAndCleanPhone(trimmedPhone);
+    if (!phoneValidation.isValid) {
+      setKidsError(phoneValidation.error || 'Please enter a valid phone number for the consultation call.');
+      return;
+    }
+
+    if (trimmedEmail && !EMAIL_REGEX.test(trimmedEmail)) {
+      setKidsError('Please enter a valid email address (or leave it blank).');
+      return;
+    }
+
+    if (!trimmedAge) {
+      setKidsError('Please specify your child\'s age (e.g. 4 years old).');
+      return;
+    }
+
+    // LOCK: Immediately disable UI & transition to transmitting state
     setKidsLoading(true);
 
+    // [PROTECTION 3] TRY / CATCH ERROR RESILIENCE
     try {
       const res = await fetch('/api/consultations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          parent_name: parentName,
-          parent_email: parentEmail,
-          parent_phone: parentPhone,
-          child_age: childAge,
-          desired_style: desiredStyle,
+          parent_name: trimmedParent,
+          parent_email: trimmedEmail,
+          parent_phone: phoneValidation.cleanPhone,
+          child_age: trimmedAge,
+          desired_style: desiredStyle.trim(),
         }),
       });
 
-      if (res.ok) {
-        setKidsSuccess(true);
-      } else {
-        alert('Could not send request. Please try again or WhatsApp Kaffy directly.');
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Server was unable to save your consultation request. Please try again.');
       }
-    } catch (err) {
-      console.error('Kids consultation error:', err);
+
+      // [PROTECTION 4] SUCCESS CONFIRMATION FLOW: Reset form fields, unlock button & show success view
+      setConfirmedKidsParent(trimmedParent);
+      setKidsSuccess(true);
+      setParentName('');
+      setParentPhone('');
+      setParentEmail('');
+      setChildAge('');
+      setDesiredStyle('');
+      setKidsError(null);
+    } catch (err: any) {
+      console.error('Kids consultation submission error:', err);
+      const friendlyMsg = err?.message?.includes('Failed to fetch')
+        ? 'Network connectivity issue. Please verify your internet connection or WhatsApp Kaffy directly.'
+        : (err?.message || 'Unable to submit consultation request. Please try again or WhatsApp Kaffy directly.');
+      setKidsError(friendlyMsg);
     } finally {
       setKidsLoading(false);
     }
@@ -998,7 +1157,7 @@ export default function HomePage() {
 
               <button
                 type="button"
-                onClick={() => setIsBookingOpen(false)}
+                onClick={() => { setIsBookingOpen(false); setBookingSuccess(false); }}
                 className="w-9 h-9 rounded-full bg-glam-page text-glam-plum hover:bg-glam-pink hover:text-white transition-colors flex items-center justify-center shrink-0"
                 aria-label="Close"
               >
@@ -1015,7 +1174,7 @@ export default function HomePage() {
                   </div>
                   <h3 className="font-serif text-2xl sm:text-3xl font-bold text-glam-plum">Booking Request Sent!</h3>
                   <p className="text-xs sm:text-sm text-glam-mocha max-w-md mx-auto leading-relaxed">
-                    Thank you, <strong>{clientName}</strong>! Your appointment request for <strong>{selectedService.title}</strong> on <strong>{appointmentDate} at {appointmentTime}</strong> has been sent to Kaffy.
+                    Thank you, <strong>{confirmedBookingDetails?.name || 'VIP Client'}</strong>! Your appointment request for <strong>{confirmedBookingDetails?.service || selectedService.title}</strong> on <strong>{confirmedBookingDetails?.date || appointmentDate} at {confirmedBookingDetails?.time || appointmentTime}</strong> has been sent to Kaffy.
                   </p>
                   <div className="p-4 rounded-2xl bg-glam-page border border-glam-border text-xs text-glam-mocha text-left space-y-2">
                     <div className="font-bold text-glam-plum">What happens next?</div>
@@ -1024,7 +1183,7 @@ export default function HomePage() {
                     <p>&bull; You can also view your booking status in your <Link href="/portal" className="text-glam-pinkDark underline font-bold">Client Portal</Link> anytime.</p>
                   </div>
                   <button
-                    onClick={() => setIsBookingOpen(false)}
+                    onClick={() => { setIsBookingOpen(false); setBookingSuccess(false); }}
                     className="w-full sm:w-auto px-8 py-3.5 rounded-full pink-gradient-btn text-white text-xs font-bold uppercase tracking-wider shadow-md"
                   >
                     Done
@@ -1196,12 +1355,28 @@ export default function HomePage() {
                     ></textarea>
                   </div>
 
+                  {bookingError && (
+                    <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-start gap-2.5 animate-in fade-in duration-150">
+                      <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                      <div className="flex-1 font-medium">{bookingError}</div>
+                    </div>
+                  )}
+
                   <button
                     type="submit"
                     disabled={bookingLoading}
-                    className="w-full py-4 rounded-full pink-gradient-btn text-white text-xs sm:text-sm font-bold uppercase tracking-wider shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+                    className={`w-full py-4 rounded-full pink-gradient-btn text-white text-xs sm:text-sm font-bold uppercase tracking-wider shadow-lg transition-all flex items-center justify-center gap-2 ${
+                      bookingLoading ? 'opacity-60 cursor-not-allowed pointer-events-none' : 'hover:shadow-xl hover:scale-[1.01]'
+                    }`}
                   >
-                    {bookingLoading ? 'Sending Request...' : 'Confirm & Request Appointment'}
+                    {bookingLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>Transmitting to Database...</span>
+                      </>
+                    ) : (
+                      <span>Confirm & Request Appointment</span>
+                    )}
                   </button>
                 </form>
               )}
@@ -1227,7 +1402,7 @@ export default function HomePage() {
 
               <button
                 type="button"
-                onClick={() => setIsKidsModalOpen(false)}
+                onClick={() => { setIsKidsModalOpen(false); setKidsSuccess(false); }}
                 className="w-9 h-9 rounded-full bg-glam-page text-glam-plum hover:bg-glam-pink hover:text-white transition-colors flex items-center justify-center shrink-0"
                 aria-label="Close"
               >
@@ -1244,10 +1419,10 @@ export default function HomePage() {
                   </div>
                   <h3 className="font-serif text-2xl font-bold text-glam-plum">Consultation Request Received!</h3>
                   <p className="text-xs sm:text-sm text-glam-mocha max-w-sm mx-auto">
-                    Thank you, <strong>{parentName}</strong>! Kaffy has received your request and will call or WhatsApp you shortly to discuss pricing and schedule your child's appointment.
+                    Thank you, <strong>{confirmedKidsParent || 'Parent'}</strong>! Kaffy has received your request and will call or WhatsApp you shortly to discuss pricing and schedule your child's appointment.
                   </p>
                   <button
-                    onClick={() => setIsKidsModalOpen(false)}
+                    onClick={() => { setIsKidsModalOpen(false); setKidsSuccess(false); }}
                     className="w-full sm:w-auto px-6 py-2.5 rounded-full pink-gradient-btn text-white text-xs font-bold uppercase tracking-wider"
                   >
                     Done
@@ -1300,12 +1475,28 @@ export default function HomePage() {
                     ></textarea>
                   </div>
 
+                  {kidsError && (
+                    <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-start gap-2.5 animate-in fade-in duration-150">
+                      <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                      <div className="flex-1 font-medium">{kidsError}</div>
+                    </div>
+                  )}
+
                   <button
                     type="submit"
                     disabled={kidsLoading}
-                    className="w-full py-3.5 rounded-full pink-gradient-btn text-white text-xs font-bold uppercase tracking-wider shadow-md hover:shadow-lg transition-all disabled:opacity-50"
+                    className={`w-full py-3.5 rounded-full pink-gradient-btn text-white text-xs font-bold uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-2 ${
+                      kidsLoading ? 'opacity-60 cursor-not-allowed pointer-events-none' : 'hover:shadow-lg hover:scale-[1.01]'
+                    }`}
                   >
-                    {kidsLoading ? 'Submitting...' : 'Request Phone Consultation'}
+                    {kidsLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>Transmitting to Database...</span>
+                      </>
+                    ) : (
+                      <span>Request Phone Consultation</span>
+                    )}
                   </button>
                 </form>
               )}

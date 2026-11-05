@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useUser, UserButton } from '@clerk/nextjs';
 import { Booking, KidsConsultation } from '@/lib/supabase';
-import { Sparkles, Calendar, Clock, Phone, Mail, CheckCircle2, XCircle, Coffee, Baby, DollarSign, AlertCircle } from 'lucide-react';
+import { Sparkles, Calendar, Loader2, Clock, Phone, Mail, CheckCircle2, XCircle, Coffee, Baby, DollarSign, AlertCircle } from 'lucide-react';
 
 export default function AdminDashboardPage() {
   const { user, isLoaded } = useUser();
@@ -40,25 +40,38 @@ export default function AdminDashboardPage() {
   }
 
   async function handleStatusUpdate(bookingId: string, status: 'accepted' | 'declined' | 'completed') {
+    // [PROTECTION 1] DOUBLE-SUBMIT LOCK GUARD
+    if (actionInProgress === bookingId) return;
+
     let reason = '';
     if (status === 'declined') {
       const input = prompt('Optional message/reason for declining (will be emailed to client):');
       if (input === null) return; // User cancelled prompt
-      reason = input;
+      reason = input.trim();
     }
 
+    // LOCK: Disable button & show transmitting state
     setActionInProgress(bookingId);
+
+    // [PROTECTION 3] TRY / CATCH ERROR RESILIENCE
     try {
       const res = await fetch(`/api/bookings/${bookingId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status, decline_reason: reason }),
       });
-      if (res.ok) {
-        loadDashboardData();
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Server error updating booking status.');
       }
-    } catch (err) {
+
+      // [PROTECTION 4] SUCCESS CONFIRMATION: Refresh state
+      loadDashboardData();
+    } catch (err: any) {
       console.error('Error updating status:', err);
+      alert(err?.message || 'Database update failed. Please check network connection.');
     } finally {
       setActionInProgress(null);
     }
