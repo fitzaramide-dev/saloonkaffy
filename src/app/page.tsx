@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Sparkles, Phone, Menu, Loader2, AlertCircle, MessageCircle, ArrowRight, Check, CheckCircle, CheckCircle2, ShoppingBag, Droplets, Wind, Scissors, Baby, Heart, ShieldCheck, Coffee, Sun, ChevronDown, Copy, ExternalLink, Calendar, Clock, X, ZoomIn } from 'lucide-react';
+import { Sparkles, Phone, Menu, Loader2, AlertCircle, Download, MessageCircle, ArrowRight, Check, CheckCircle, CheckCircle2, ShoppingBag, Droplets, Wind, Scissors, Baby, Heart, ShieldCheck, Coffee, Sun, ChevronDown, Copy, ExternalLink, Calendar, Clock, X, ZoomIn } from 'lucide-react';
 
 interface ServiceItem {
   id: string;
@@ -180,7 +180,8 @@ export default function HomePage() {
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
-  const [confirmedBookingDetails, setConfirmedBookingDetails] = useState<{ name: string; service: string; date: string; time: string } | null>(null);
+  const [confirmedBookingDetails, setConfirmedBookingDetails] = useState<{ id?: string; name: string; service: string; date: string; time: string; price?: number; hairOption?: string } | null>(null);
+  const [refCopied, setRefCopied] = useState(false);
 
   // Kids Consultation Modal State
   const [isKidsModalOpen, setIsKidsModalOpen] = useState(false);
@@ -286,11 +287,15 @@ export default function HomePage() {
       }
 
       // [PROTECTION 4] SUCCESS CONFIRMATION FLOW: Reset form fields, unlock button & show success view
+      const bookingRef = data?.booking?.id || ('KS-' + Math.random().toString(36).substring(2, 8).toUpperCase());
       setConfirmedBookingDetails({
+        id: bookingRef,
         name: trimmedName,
         service: selectedService.title,
         date: appointmentDate,
         time: appointmentTime,
+        price: selectedService.price,
+        hairOption: hairOption,
       });
       setBookingSuccess(true);
       setClientName('');
@@ -1168,26 +1173,103 @@ export default function HomePage() {
             {/* Scrollable Form Body */}
             <div className="overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-5 flex-1 overscroll-contain">
               {bookingSuccess ? (
-                <div className="text-center py-6 sm:py-8 space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-green-100 text-green-700 flex items-center justify-center mx-auto">
+                <div className="text-center py-5 sm:py-7 space-y-4">
+                  {/* Status Icon */}
+                  <div className="w-16 h-16 rounded-full bg-green-100 text-green-700 flex items-center justify-center mx-auto shadow-sm">
                     <CheckCircle2 className="w-10 h-10" />
                   </div>
-                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-glam-plum">Booking Request Sent!</h3>
-                  <p className="text-xs sm:text-sm text-glam-mocha max-w-md mx-auto leading-relaxed">
-                    Thank you, <strong>{confirmedBookingDetails?.name || 'VIP Client'}</strong>! Your appointment request for <strong>{confirmedBookingDetails?.service || selectedService.title}</strong> on <strong>{confirmedBookingDetails?.date || appointmentDate} at {confirmedBookingDetails?.time || appointmentTime}</strong> has been sent to Kaffy.
-                  </p>
-                  <div className="p-4 rounded-2xl bg-glam-page border border-glam-border text-xs text-glam-mocha text-left space-y-2">
-                    <div className="font-bold text-glam-plum">What happens next?</div>
-                    <p>&bull; Kaffy will review and click <strong>Accept</strong> in her dashboard.</p>
-                    <p>&bull; You will receive an email confirmation with your hair preparation checklist and Santa Venera penthouse directions.</p>
-                    <p>&bull; You can also view your booking status in your <Link href="/portal" className="text-glam-pinkDark underline font-bold">Client Portal</Link> anytime.</p>
+
+                  <div>
+                    <span className="text-[10px] uppercase tracking-widest text-glam-pinkDark font-extrabold bg-pink-50 px-3 py-1 rounded-full border border-glam-pink/30">
+                      Request Confirmed & Queued
+                    </span>
+                    <h3 className="font-serif text-2xl sm:text-3xl font-bold text-glam-plum mt-1.5">
+                      Booking Request Sent!
+                    </h3>
                   </div>
-                  <button
-                    onClick={() => { setIsBookingOpen(false); setBookingSuccess(false); }}
-                    className="w-full sm:w-auto px-8 py-3.5 rounded-full pink-gradient-btn text-white text-xs font-bold uppercase tracking-wider shadow-md"
-                  >
-                    Done
-                  </button>
+
+                  {/* INGESTION ID & RECEIPT CARD */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-glam-page border-2 border-glam-border text-left space-y-3">
+                    <div className="flex items-center justify-between border-b border-glam-border pb-2.5">
+                      <div>
+                        <span className="text-[10px] uppercase tracking-wider text-glam-muted font-bold block">Ingestion ID / Reference</span>
+                        <span className="font-mono text-sm sm:text-base font-extrabold text-glam-pinkDark">
+                          #{confirmedBookingDetails?.id?.slice(-8).toUpperCase() || 'KS-CONFIRMED'}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const ref = confirmedBookingDetails?.id || '';
+                          navigator.clipboard.writeText(ref);
+                          setRefCopied(true);
+                          setTimeout(() => setRefCopied(false), 2000);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-white border border-glam-border hover:border-glam-pink text-xs text-glam-plum font-bold flex items-center gap-1.5 transition-colors shadow-sm"
+                        title="Copy Reference Code"
+                      >
+                        <Copy className="w-3.5 h-3.5 text-glam-pink" />
+                        <span>{refCopied ? 'Copied!' : 'Copy ID'}</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs text-glam-mocha pt-1">
+                      <div>
+                        <span className="text-glam-muted block text-[11px]">Client Name:</span>
+                        <strong className="text-glam-plum">{confirmedBookingDetails?.name}</strong>
+                      </div>
+                      <div>
+                        <span className="text-glam-muted block text-[11px]">Hairstyle:</span>
+                        <strong className="text-glam-plum">{confirmedBookingDetails?.service}</strong>
+                      </div>
+                      <div>
+                        <span className="text-glam-muted block text-[11px]">Appointment:</span>
+                        <strong className="text-glam-plum">{confirmedBookingDetails?.date} at {confirmedBookingDetails?.time}</strong>
+                      </div>
+                      <div>
+                        <span className="text-glam-muted block text-[11px]">Hair Choice:</span>
+                        <strong className="text-glam-plum">{confirmedBookingDetails?.hairOption === 'byoh' ? 'Bringing Own Packs (BYOH)' : 'In-Studio Hair'}</strong>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-glam-border flex items-center justify-between text-xs">
+                      <span className="text-glam-muted font-medium">Penthouse Location:</span>
+                      <span className="font-bold text-glam-plum">Santa Venera, Malta</span>
+                    </div>
+                  </div>
+
+                  {/* PRIMARY ACTION: WhatsApp Direct Chat */}
+                  <div className="space-y-2 pt-1">
+                    <a
+                      href={`https://wa.me/35677567349?text=${encodeURIComponent(
+                        `Hi Kaffy! I just submitted an appointment request for ${confirmedBookingDetails?.service || 'Hair Appointment'} on ${confirmedBookingDetails?.date} at ${confirmedBookingDetails?.time}. (Booking Ref: #${confirmedBookingDetails?.id?.slice(-8).toUpperCase() || 'NEW'})`
+                      )}`}
+                      target="_blank"
+                      className="w-full py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all"
+                    >
+                      <MessageCircle className="w-4 h-4" /> Direct WhatsApp Chat with Kaffy
+                    </a>
+
+                    {/* SECONDARY ACTION: PDF Download / Print Slip */}
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      className="w-full py-3 rounded-full border border-glam-pink/40 bg-white hover:bg-glam-section text-glam-pinkDark text-xs font-bold flex items-center justify-center gap-2 transition-colors shadow-sm"
+                    >
+                      <Download className="w-4 h-4 text-glam-pink" /> Save / Download Booking Slip (PDF)
+                    </button>
+                  </div>
+
+                  {/* DISMISS */}
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() => { setIsBookingOpen(false); setBookingSuccess(false); }}
+                      className="text-xs text-glam-muted hover:text-glam-plum underline font-semibold transition-colors"
+                    >
+                      Close Window & Return to Site
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <form onSubmit={handleBookingSubmit} className="space-y-4 sm:space-y-5">

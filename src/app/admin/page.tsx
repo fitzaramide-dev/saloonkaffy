@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useUser, UserButton } from '@clerk/nextjs';
 import { Booking, KidsConsultation } from '@/lib/supabase';
-import { Sparkles, Calendar, Loader2, Clock, Phone, Mail, CheckCircle2, XCircle, Coffee, Baby, DollarSign, AlertCircle } from 'lucide-react';
+import { Sparkles, Calendar, Loader2, Clock, Phone, Mail, CheckCircle2, XCircle, Coffee, Baby, DollarSign, AlertCircle, Search, Share2, Copy, ExternalLink, MessageCircle } from 'lucide-react';
 
 export default function AdminDashboardPage() {
   const { user, isLoaded } = useUser();
@@ -13,6 +13,14 @@ export default function AdminDashboardPage() {
   const [consultations, setConsultations] = useState<KidsConsultation[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  function copyShareLink() {
+    navigator.clipboard.writeText('https://saloonkaffy.vercel.app/#services');
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2500);
+  }
 
   useEffect(() => {
     if (isLoaded) {
@@ -162,7 +170,20 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex flex-wrap gap-2 pt-6 mt-6 border-t border-glam-border">
+          <div className="pt-6 mt-6 border-t border-glam-border space-y-4">
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="w-4 h-4 text-glam-muted absolute left-4 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search appointments by client name, phone, email, or hairstyle..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-11 pr-4 py-2.5 rounded-2xl bg-glam-page border border-glam-border text-xs sm:text-sm font-medium text-glam-plum focus:outline-none focus:border-glam-pink shadow-inner"
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setActiveTab('pending')}
               className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${
@@ -197,6 +218,7 @@ export default function AdminDashboardPage() {
             </button>
           </div>
         </div>
+      </div>
 
         {/* TAB 1: PENDING REQUESTS (ACCEPT / DECLINE) */}
         {activeTab === 'pending' && (
