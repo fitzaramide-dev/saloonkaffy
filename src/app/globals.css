@@ -8,10 +8,20 @@
   --background-end-rgb: 255, 240, 245;
 }
 
-body {
+html, body {
   color: rgb(var(--foreground-rgb));
   background: #FFF0F5;
   font-family: var(--font-jakarta), sans-serif;
+  overflow-x: hidden;
+  max-width: 100vw;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent iOS Safari from auto-zooming inputs on mobile while keeping clean styling */
+@media screen and (max-width: 767px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
 }
 
 /* Barbie & High-Glam Pink Styling */

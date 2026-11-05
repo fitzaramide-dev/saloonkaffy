@@ -804,311 +804,338 @@ export default function HomePage() {
 
       {/* INTERACTIVE BOOKING MODAL */}
       {isBookingOpen && (
-        <div className="fixed inset-0 z-50 bg-glam-plum/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="relative max-w-xl w-full bg-white rounded-3xl overflow-hidden border-2 border-glam-border shadow-2xl p-6 sm:p-8 space-y-6 my-8">
-            <button
-              onClick={() => setIsBookingOpen(false)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-glam-page text-glam-plum hover:bg-glam-pink hover:text-white transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {bookingSuccess ? (
-              <div className="text-center py-8 space-y-4">
-                <div className="w-16 h-16 rounded-full bg-green-100 text-green-700 flex items-center justify-center mx-auto">
-                  <CheckCircle2 className="w-10 h-10" />
+        <div className="fixed inset-0 z-50 bg-glam-plum/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto overscroll-contain animate-in fade-in duration-200">
+          <div className="relative w-full sm:max-w-xl bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden border-t-2 sm:border-2 border-glam-border shadow-2xl max-h-[92dvh] sm:max-h-[90vh] flex flex-col my-0 sm:my-auto">
+            {/* Sticky Modal Header */}
+            <div className="relative px-5 py-3.5 sm:px-6 sm:py-5 border-b border-glam-border bg-white flex items-center justify-between shrink-0">
+              <div className="pr-4">
+                <span className="text-[10px] uppercase tracking-widest text-glam-pink font-extrabold block">
+                  Book Penthouse Hair Appointment
+                </span>
+                <h3 className="font-serif text-lg sm:text-2xl font-bold text-glam-plum truncate max-w-[240px] sm:max-w-md">
+                  {selectedService.title}
+                </h3>
+                <div className="flex items-center gap-2 mt-0.5 text-xs text-glam-mocha">
+                  <span className="font-bold text-glam-pinkDark">From &euro;{selectedService.price}</span>
+                  <span>&bull;</span>
+                  <span>Est. {selectedService.duration}</span>
                 </div>
-                <h3 className="font-serif text-3xl font-bold text-glam-plum">Booking Request Sent!</h3>
-                <p className="text-sm text-glam-mocha max-w-md mx-auto leading-relaxed">
-                  Thank you, <strong>{clientName}</strong>! Your appointment request for <strong>{selectedService.title}</strong> on <strong>{appointmentDate} at {appointmentTime}</strong> has been sent to Kaffy.
-                </p>
-                <div className="p-4 rounded-2xl bg-glam-page border border-glam-border text-xs text-glam-mocha text-left space-y-2">
-                  <div className="font-bold text-glam-plum">What happens next?</div>
-                  <p>&bull; Kaffy will review and click <strong>Accept</strong> in her dashboard.</p>
-                  <p>&bull; You will receive an email confirmation with your hair preparation checklist and Santa Venera penthouse directions.</p>
-                  <p>&bull; You can also view your booking status in your <Link href="/portal" className="text-glam-pinkDark underline font-bold">Client Portal</Link> anytime.</p>
-                </div>
-                <button
-                  onClick={() => setIsBookingOpen(false)}
-                  className="px-8 py-3 rounded-full pink-gradient-btn text-white text-xs font-bold uppercase tracking-wider shadow-md"
-                >
-                  Done
-                </button>
               </div>
-            ) : (
-              <form onSubmit={handleBookingSubmit} className="space-y-5">
-                <div>
-                  <span className="text-[10px] uppercase tracking-widest text-glam-pink font-extrabold block">Step 1: Selected Style</span>
-                  <h3 className="font-serif text-2xl font-bold text-glam-plum">{selectedService.title}</h3>
-                  <p className="text-xs text-glam-mocha mt-0.5">Starting from &euro;{selectedService.price} &bull; Est. Duration: {selectedService.duration}</p>
-                </div>
 
-                {/* Hair Extensions Option */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-glam-plum block">Hair Extensions Choice:</label>
-                  <div className="grid grid-cols-2 gap-3 text-xs">
-                    <button
-                      type="button"
-                      onClick={() => setHairOption('byoh')}
-                      className={`p-3 rounded-2xl border-2 text-left transition-all ${
-                        hairOption === 'byoh'
-                          ? 'border-glam-pink bg-pink-50/50 font-bold text-glam-pinkDark'
-                          : 'border-glam-border bg-white text-glam-mocha'
-                      }`}
-                    >
-                      <div className="flex items-center gap-1.5 font-bold mb-0.5">
-                        <CheckCircle className="w-3.5 h-3.5 text-glam-pink" /> Bring My Own
-                      </div>
-                      <span className="text-[11px] font-normal text-glam-muted">I will bring my own hair packs</span>
-                    </button>
+              <button
+                type="button"
+                onClick={() => setIsBookingOpen(false)}
+                className="w-9 h-9 rounded-full bg-glam-page text-glam-plum hover:bg-glam-pink hover:text-white transition-colors flex items-center justify-center shrink-0"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setHairOption('in_studio')}
-                      className={`p-3 rounded-2xl border-2 text-left transition-all ${
-                        hairOption === 'in_studio'
-                          ? 'border-glam-pink bg-pink-50/50 font-bold text-glam-pinkDark'
-                          : 'border-glam-border bg-white text-glam-mocha'
-                      }`}
-                    >
-                      <div className="flex items-center gap-1.5 font-bold mb-0.5">
-                        <ShoppingBag className="w-3.5 h-3.5 text-glam-pink" /> Buy in Studio
-                      </div>
-                      <span className="text-[11px] font-normal text-glam-muted">Kaffy provides hair in-studio</span>
-                    </button>
+            {/* Scrollable Form Body */}
+            <div className="overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-5 flex-1 overscroll-contain">
+              {bookingSuccess ? (
+                <div className="text-center py-6 sm:py-8 space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-green-100 text-green-700 flex items-center justify-center mx-auto">
+                    <CheckCircle2 className="w-10 h-10" />
                   </div>
+                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-glam-plum">Booking Request Sent!</h3>
+                  <p className="text-xs sm:text-sm text-glam-mocha max-w-md mx-auto leading-relaxed">
+                    Thank you, <strong>{clientName}</strong>! Your appointment request for <strong>{selectedService.title}</strong> on <strong>{appointmentDate} at {appointmentTime}</strong> has been sent to Kaffy.
+                  </p>
+                  <div className="p-4 rounded-2xl bg-glam-page border border-glam-border text-xs text-glam-mocha text-left space-y-2">
+                    <div className="font-bold text-glam-plum">What happens next?</div>
+                    <p>&bull; Kaffy will review and click <strong>Accept</strong> in her dashboard.</p>
+                    <p>&bull; You will receive an email confirmation with your hair preparation checklist and Santa Venera penthouse directions.</p>
+                    <p>&bull; You can also view your booking status in your <Link href="/portal" className="text-glam-pinkDark underline font-bold">Client Portal</Link> anytime.</p>
+                  </div>
+                  <button
+                    onClick={() => setIsBookingOpen(false)}
+                    className="w-full sm:w-auto px-8 py-3.5 rounded-full pink-gradient-btn text-white text-xs font-bold uppercase tracking-wider shadow-md"
+                  >
+                    Done
+                  </button>
                 </div>
+              ) : (
+                <form onSubmit={handleBookingSubmit} className="space-y-4 sm:space-y-5">
+                  {/* Hair Extensions Option */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-glam-plum block">Hair Extensions Choice:</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setHairOption('byoh')}
+                        className={`p-3 rounded-2xl border-2 text-left transition-all ${
+                          hairOption === 'byoh'
+                            ? 'border-glam-pink bg-pink-50/50 font-bold text-glam-pinkDark'
+                            : 'border-glam-border bg-white text-glam-mocha'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 font-bold mb-0.5">
+                          <CheckCircle className="w-4 h-4 text-glam-pink" /> Bring My Own Hair (BYOH)
+                        </div>
+                        <span className="text-[11px] font-normal text-glam-muted block">I will bring my own hair packs</span>
+                      </button>
 
-                {/* Care & Prep Add-ons */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-glam-plum block">Care & Prep Add-Ons (Optional):</label>
-                  <div className="space-y-1.5 text-xs">
-                    {[
-                      { name: 'Hair Washing & Conditioning', price: 15 },
-                      { name: 'Blow Drying & Tension Stretch', price: 10 },
-                      { name: 'Unbraiding Old Hair Takedown', price: 20 },
-                    ].map((addon) => (
-                      <label key={addon.name} className="flex items-center justify-between p-2.5 rounded-xl border border-glam-border bg-glam-page/60 hover:bg-glam-page cursor-pointer">
-                        <span className="flex items-center gap-2 text-glam-plum font-semibold">
-                          <input
-                            type="checkbox"
-                            checked={selectedAddons.includes(addon.name)}
-                            onChange={() => toggleAddon(addon.name)}
-                            className="rounded border-glam-border text-glam-pink focus:ring-glam-pink"
-                          />
-                          {addon.name}
+                      <button
+                        type="button"
+                        onClick={() => setHairOption('in_studio')}
+                        className={`p-3 rounded-2xl border-2 text-left transition-all ${
+                          hairOption === 'in_studio'
+                            ? 'border-glam-pink bg-pink-50/50 font-bold text-glam-pinkDark'
+                            : 'border-glam-border bg-white text-glam-mocha'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 font-bold mb-0.5">
+                          <ShoppingBag className="w-4 h-4 text-glam-pink" /> Buy in Studio
+                        </div>
+                        <span className="text-[11px] font-normal text-glam-muted block">Kaffy provides hair in-studio</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Care & Prep Add-ons */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-glam-plum block">Care & Prep Add-Ons (Optional):</label>
+                    <div className="space-y-1.5 text-xs">
+                      {[
+                        { name: 'Hair Washing & Conditioning', price: 15 },
+                        { name: 'Blow Drying & Tension Stretch', price: 10 },
+                        { name: 'Unbraiding Old Hair Takedown', price: 20 },
+                      ].map((addon) => (
+                        <label key={addon.name} className="flex items-center justify-between p-2.5 rounded-xl border border-glam-border bg-glam-page/60 hover:bg-glam-page cursor-pointer">
+                          <span className="flex items-center gap-2 text-glam-plum font-semibold">
+                            <input
+                              type="checkbox"
+                              checked={selectedAddons.includes(addon.name)}
+                              onChange={() => toggleAddon(addon.name)}
+                              className="w-4 h-4 rounded border-glam-border text-glam-pink focus:ring-glam-pink"
+                            />
+                            {addon.name}
+                          </span>
+                          <span className="font-bold text-glam-pinkDark">+&euro;{addon.price}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Date & Time Picker (24h rule) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                      <label className="text-xs font-bold text-glam-plum block mb-1">Date (Min 24h Notice):</label>
+                      <input
+                        type="date"
+                        required
+                        min={tomorrow}
+                        value={appointmentDate}
+                        onChange={(e) => setAppointmentDate(e.target.value)}
+                        className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs sm:text-xs font-bold text-glam-plum focus:outline-none focus:border-glam-pink"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-glam-plum block mb-1">Preferred Time:</label>
+                      <select
+                        value={appointmentTime}
+                        onChange={(e) => setAppointmentTime(e.target.value)}
+                        className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs sm:text-xs font-bold text-glam-plum focus:outline-none focus:border-glam-pink"
+                      >
+                        <option value="09:00">09:00 AM</option>
+                        <option value="10:00">10:00 AM</option>
+                        <option value="11:30">11:30 AM</option>
+                        <option value="13:00">01:00 PM</option>
+                        <option value="14:30">02:30 PM</option>
+                        <option value="16:00">04:00 PM</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Payment Option Selection */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-glam-plum block">Payment Preference:</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setPaymentChoice('deposit_50')}
+                        className={`p-3 rounded-2xl border-2 text-left transition-all ${
+                          paymentChoice === 'deposit_50'
+                            ? 'border-glam-pink bg-pink-50/50 font-bold text-glam-pinkDark'
+                            : 'border-glam-border bg-white text-glam-mocha'
+                        }`}
+                      >
+                        <div className="font-bold">Pay 50% Deposit</div>
+                        <span className="text-[11px] font-semibold text-glam-pink block mt-0.5">
+                          &euro;{(selectedService.price * 0.5).toFixed(2)} to secure slot
                         </span>
-                        <span className="font-bold text-glam-pinkDark">+&euro;{addon.price}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+                      </button>
 
-                {/* Date & Time Picker (24h rule) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-bold text-glam-plum block mb-1">Appointment Date (24h Notice):</label>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentChoice('full_at_salon')}
+                        className={`p-3 rounded-2xl border-2 text-left transition-all ${
+                          paymentChoice === 'full_at_salon'
+                            ? 'border-glam-pink bg-pink-50/50 font-bold text-glam-pinkDark'
+                            : 'border-glam-border bg-white text-glam-mocha'
+                        }`}
+                      >
+                        <div className="font-bold">Pay in Full at Salon</div>
+                        <span className="text-[11px] text-glam-muted block mt-0.5">
+                          &euro;{selectedService.price} once hair is done
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Client Contact Details */}
+                  <div className="space-y-2.5 pt-2 border-t border-glam-border">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Your Full Name"
+                        value={clientName}
+                        onChange={(e) => setClientName(e.target.value)}
+                        className="p-3 rounded-2xl border border-glam-border bg-glam-page text-xs sm:text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
+                      />
+                      <input
+                        type="tel"
+                        required
+                        placeholder="Phone / WhatsApp (+356...)"
+                        value={clientPhone}
+                        onChange={(e) => setClientPhone(e.target.value)}
+                        className="p-3 rounded-2xl border border-glam-border bg-glam-page text-xs sm:text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
+                      />
+                    </div>
                     <input
-                      type="date"
+                      type="email"
                       required
-                      min={tomorrow}
-                      value={appointmentDate}
-                      onChange={(e) => setAppointmentDate(e.target.value)}
-                      className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs font-bold text-glam-plum focus:outline-none focus:border-glam-pink"
+                      placeholder="Email Address (for confirmation & directions)"
+                      value={clientEmail}
+                      onChange={(e) => setClientEmail(e.target.value)}
+                      className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs sm:text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
                     />
+                    <textarea
+                      rows={2}
+                      placeholder="Special requests or hair questions (optional)"
+                      value={bookingNotes}
+                      onChange={(e) => setBookingNotes(e.target.value)}
+                      className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs sm:text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
+                    ></textarea>
                   </div>
-                  <div>
-                    <label className="text-xs font-bold text-glam-plum block mb-1">Preferred Time:</label>
-                    <select
-                      value={appointmentTime}
-                      onChange={(e) => setAppointmentTime(e.target.value)}
-                      className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs font-bold text-glam-plum focus:outline-none focus:border-glam-pink"
-                    >
-                      <option value="09:00">09:00 AM</option>
-                      <option value="10:00">10:00 AM</option>
-                      <option value="11:30">11:30 AM</option>
-                      <option value="13:00">01:00 PM</option>
-                      <option value="14:30">02:30 PM</option>
-                      <option value="16:00">04:00 PM</option>
-                    </select>
-                  </div>
-                </div>
 
-                {/* Payment Option Selection */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-glam-plum block">Payment Preference:</label>
-                  <div className="grid grid-cols-2 gap-3 text-xs">
-                    <button
-                      type="button"
-                      onClick={() => setPaymentChoice('deposit_50')}
-                      className={`p-3 rounded-2xl border-2 text-left transition-all ${
-                        paymentChoice === 'deposit_50'
-                          ? 'border-glam-pink bg-pink-50/50 font-bold text-glam-pinkDark'
-                          : 'border-glam-border bg-white text-glam-mocha'
-                      }`}
-                    >
-                      <div className="font-bold">Pay 50% Deposit</div>
-                      <span className="text-[11px] font-semibold text-glam-pink block mt-0.5">
-                        &euro;{(selectedService.price * 0.5).toFixed(2)} to secure slot
-                      </span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setPaymentChoice('full_at_salon')}
-                      className={`p-3 rounded-2xl border-2 text-left transition-all ${
-                        paymentChoice === 'full_at_salon'
-                          ? 'border-glam-pink bg-pink-50/50 font-bold text-glam-pinkDark'
-                          : 'border-glam-border bg-white text-glam-mocha'
-                      }`}
-                    >
-                      <div className="font-bold">Pay in Full at Salon</div>
-                      <span className="text-[11px] text-glam-muted block mt-0.5">
-                        &euro;{selectedService.price} once hair is done
-                      </span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Client Contact Details */}
-                <div className="space-y-3 pt-2 border-t border-glam-border">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input
-                      type="text"
-                      required
-                      placeholder="Your Full Name"
-                      value={clientName}
-                      onChange={(e) => setClientName(e.target.value)}
-                      className="p-3 rounded-2xl border border-glam-border bg-glam-page text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
-                    />
-                    <input
-                      type="tel"
-                      required
-                      placeholder="Phone / WhatsApp Number"
-                      value={clientPhone}
-                      onChange={(e) => setClientPhone(e.target.value)}
-                      className="p-3 rounded-2xl border border-glam-border bg-glam-page text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
-                    />
-                  </div>
-                  <input
-                    type="email"
-                    required
-                    placeholder="Email Address (for confirmation & directions)"
-                    value={clientEmail}
-                    onChange={(e) => setClientEmail(e.target.value)}
-                    className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
-                  />
-                  <textarea
-                    rows={2}
-                    placeholder="Special requests or questions (optional)"
-                    value={bookingNotes}
-                    onChange={(e) => setBookingNotes(e.target.value)}
-                    className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
-                  ></textarea>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={bookingLoading}
-                  className="w-full py-4 rounded-full pink-gradient-btn text-white text-xs font-bold uppercase tracking-wider shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
-                >
-                  {bookingLoading ? 'Sending Request...' : 'Confirm & Request Appointment'}
-                </button>
-              </form>
-            )}
+                  <button
+                    type="submit"
+                    disabled={bookingLoading}
+                    className="w-full py-4 rounded-full pink-gradient-btn text-white text-xs sm:text-sm font-bold uppercase tracking-wider shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+                  >
+                    {bookingLoading ? 'Sending Request...' : 'Confirm & Request Appointment'}
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       )}
 
       {/* KIDS CONSULTATION MODAL */}
       {isKidsModalOpen && (
-        <div className="fixed inset-0 z-50 bg-glam-plum/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="relative max-w-lg w-full bg-white rounded-3xl overflow-hidden border-2 border-glam-border shadow-2xl p-6 sm:p-8 space-y-6 my-8">
-            <button
-              onClick={() => setIsKidsModalOpen(false)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-glam-page text-glam-plum hover:bg-glam-pink hover:text-white transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {kidsSuccess ? (
-              <div className="text-center py-6 space-y-4">
-                <div className="w-16 h-16 rounded-full bg-pink-100 text-glam-pinkDark flex items-center justify-center mx-auto">
-                  <Baby className="w-8 h-8" />
+        <div className="fixed inset-0 z-50 bg-glam-plum/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto overscroll-contain animate-in fade-in duration-200">
+          <div className="relative w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-3xl overflow-hidden border-t-2 sm:border-2 border-glam-border shadow-2xl max-h-[92dvh] sm:max-h-[85vh] flex flex-col my-0 sm:my-auto">
+            {/* Sticky Kids Header */}
+            <div className="relative px-5 py-3.5 sm:px-6 sm:py-5 border-b border-glam-border bg-white flex items-center justify-between shrink-0">
+              <div className="pr-4">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-pink-100 text-glam-pinkDark text-[11px] font-bold mb-1">
+                  <Baby className="w-3.5 h-3.5" /> Gentle Kids Care
                 </div>
-                <h3 className="font-serif text-2xl font-bold text-glam-plum">Consultation Request Received!</h3>
-                <p className="text-sm text-glam-mocha max-w-sm mx-auto">
-                  Thank you, <strong>{parentName}</strong>! Kaffy has received your request and will call or WhatsApp you shortly to discuss pricing and schedule your child's appointment.
-                </p>
-                <button
-                  onClick={() => setIsKidsModalOpen(false)}
-                  className="px-6 py-2.5 rounded-full pink-gradient-btn text-white text-xs font-bold uppercase tracking-wider"
-                >
-                  Done
-                </button>
+                <h3 className="font-serif text-lg sm:text-2xl font-bold text-glam-plum">
+                  Kids Hair Consultation Call
+                </h3>
               </div>
-            ) : (
-              <form onSubmit={handleKidsSubmit} className="space-y-4">
-                <div className="space-y-1">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-100 text-glam-pinkDark text-xs font-bold">
-                    <Baby className="w-3.5 h-3.5" /> Gentle Kids Care
+
+              <button
+                type="button"
+                onClick={() => setIsKidsModalOpen(false)}
+                className="w-9 h-9 rounded-full bg-glam-page text-glam-plum hover:bg-glam-pink hover:text-white transition-colors flex items-center justify-center shrink-0"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Scrollable Kids Body */}
+            <div className="overflow-y-auto p-4 sm:p-6 space-y-4 flex-1 overscroll-contain">
+              {kidsSuccess ? (
+                <div className="text-center py-6 space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-pink-100 text-glam-pinkDark flex items-center justify-center mx-auto">
+                    <Baby className="w-8 h-8" />
                   </div>
-                  <h3 className="font-serif text-2xl font-bold text-glam-plum">Kids Hair Consultation Call</h3>
+                  <h3 className="font-serif text-2xl font-bold text-glam-plum">Consultation Request Received!</h3>
+                  <p className="text-xs sm:text-sm text-glam-mocha max-w-sm mx-auto">
+                    Thank you, <strong>{parentName}</strong>! Kaffy has received your request and will call or WhatsApp you shortly to discuss pricing and schedule your child's appointment.
+                  </p>
+                  <button
+                    onClick={() => setIsKidsModalOpen(false)}
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-full pink-gradient-btn text-white text-xs font-bold uppercase tracking-wider"
+                  >
+                    Done
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleKidsSubmit} className="space-y-3.5">
                   <p className="text-xs text-glam-mocha leading-relaxed">
                     Because young scalps are sensitive, Kaffy discusses child age, hair length, and desired styles with parents first before setting a custom price and time.
                   </p>
-                </div>
 
-                <div className="space-y-3 pt-2">
-                  <input
-                    type="text"
-                    required
-                    placeholder="Parent's Name"
-                    value={parentName}
-                    onChange={(e) => setParentName(e.target.value)}
-                    className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
-                  />
-                  <input
-                    type="tel"
-                    required
-                    placeholder="Phone Number for Call / WhatsApp"
-                    value={parentPhone}
-                    onChange={(e) => setParentPhone(e.target.value)}
-                    className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
-                  />
-                  <input
-                    type="email"
-                    placeholder="Parent's Email Address (optional)"
-                    value={parentEmail}
-                    onChange={(e) => setParentEmail(e.target.value)}
-                    className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
-                  />
-                  <input
-                    type="text"
-                    required
-                    placeholder="Child's Age (e.g. 4 years old)"
-                    value={childAge}
-                    onChange={(e) => setChildAge(e.target.value)}
-                    className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
-                  />
-                  <textarea
-                    rows={2}
-                    placeholder="Desired hairstyle, beads, or scalp notes (e.g. tender scalp, braided ponytail with beads)"
-                    value={desiredStyle}
-                    onChange={(e) => setDesiredStyle(e.target.value)}
-                    className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
-                  ></textarea>
-                </div>
+                  <div className="space-y-2.5 pt-1">
+                    <input
+                      type="text"
+                      required
+                      placeholder="Parent's Name"
+                      value={parentName}
+                      onChange={(e) => setParentName(e.target.value)}
+                      className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs sm:text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
+                    />
+                    <input
+                      type="tel"
+                      required
+                      placeholder="Phone Number for Call / WhatsApp"
+                      value={parentPhone}
+                      onChange={(e) => setParentPhone(e.target.value)}
+                      className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs sm:text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
+                    />
+                    <input
+                      type="email"
+                      placeholder="Parent's Email Address (optional)"
+                      value={parentEmail}
+                      onChange={(e) => setParentEmail(e.target.value)}
+                      className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs sm:text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
+                    />
+                    <input
+                      type="text"
+                      required
+                      placeholder="Child's Age (e.g. 4 years old)"
+                      value={childAge}
+                      onChange={(e) => setChildAge(e.target.value)}
+                      className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs sm:text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
+                    />
+                    <textarea
+                      rows={2}
+                      placeholder="Desired hairstyle, beads, or scalp notes"
+                      value={desiredStyle}
+                      onChange={(e) => setDesiredStyle(e.target.value)}
+                      className="w-full p-3 rounded-2xl border border-glam-border bg-glam-page text-xs sm:text-xs font-medium text-glam-plum focus:outline-none focus:border-glam-pink"
+                    ></textarea>
+                  </div>
 
-                <button
-                  type="submit"
-                  disabled={kidsLoading}
-                  className="w-full py-3.5 rounded-full pink-gradient-btn text-white text-xs font-bold uppercase tracking-wider shadow-md hover:shadow-lg transition-all disabled:opacity-50"
-                >
-                  {kidsLoading ? 'Submitting...' : 'Request Phone Consultation'}
-                </button>
-              </form>
-            )}
+                  <button
+                    type="submit"
+                    disabled={kidsLoading}
+                    className="w-full py-3.5 rounded-full pink-gradient-btn text-white text-xs font-bold uppercase tracking-wider shadow-md hover:shadow-lg transition-all disabled:opacity-50"
+                  >
+                    {kidsLoading ? 'Submitting...' : 'Request Phone Consultation'}
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       )}

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
@@ -20,6 +20,13 @@ export const metadata: Metadata = {
   description: "Malta's boutique pink penthouse hair studio specializing in knotless braids, Ghana weaving, box braids, weaves, and gentle kids hair.",
 };
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: 'cover',
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -28,7 +35,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" className={`${playfair.variable} ${jakarta.variable} scroll-smooth`}>
-        <body className="bg-glam-page text-glam-plum font-sans antialiased selection:bg-glam-pink selection:text-white">
+        <body className="bg-glam-page text-glam-plum font-sans antialiased selection:bg-glam-pink selection:text-white overflow-x-hidden">
           {children}
         </body>
       </html>
