@@ -207,13 +207,32 @@ export default function ClientPortalPage() {
 
                     {/* Address & Prep (Only for Confirmed) */}
                     {isAccepted && (
-                      <div className="p-3.5 rounded-2xl bg-glam-section border border-glam-border text-xs space-y-1">
+                      <div className="p-3.5 rounded-2xl bg-glam-section border border-glam-border text-xs space-y-2">
                         <div className="font-bold text-glam-plum flex items-center gap-1">
                           <MapPin className="w-3.5 h-3.5 text-glam-pink" /> Penthouse Location:
                         </div>
-                        <p className="text-glam-mocha">
+                        <p className="text-glam-mocha font-medium">
                           40, Anfield, Flat 2, Triq Brunzar, Santa Venera, Malta.
                         </p>
+                        <div className="flex flex-wrap items-center gap-2 pt-1">
+                          <a
+                            href="https://maps.google.com/?q=Triq+Brunzar,+Santa+Venera,+Malta"
+                            target="_blank"
+                            className="px-3 py-1.5 rounded-lg bg-white border border-glam-pink/40 text-glam-pinkDark font-bold text-[11px] hover:bg-glam-pink hover:text-white transition-colors flex items-center gap-1 shadow-sm"
+                          >
+                            <MapPin className="w-3 h-3" /> Open in Google Maps
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText('40, Anfield, Flat 2, Triq Brunzar, Santa Venera, Malta');
+                              alert('Studio address copied to clipboard!');
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-white border border-glam-border text-glam-plum font-bold text-[11px] hover:bg-glam-page transition-colors shadow-sm"
+                          >
+                            Copy Address
+                          </button>
+                        </div>
                         <p className="text-[11px] text-glam-pinkDark font-semibold pt-1">
                           ✨ Please arrive with hair washed, detangled & blown out straight.
                         </p>

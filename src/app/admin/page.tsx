@@ -106,18 +106,45 @@ export default function AdminDashboardPage() {
 
             {/* Quick Stat Badges */}
             <div className="flex items-center gap-3">
-              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-center">
+              <button
+                type="button"
+                onClick={() => setActiveTab('pending')}
+                className={`p-4 rounded-2xl text-center transition-all cursor-pointer ${
+                  activeTab === 'pending'
+                    ? 'bg-amber-100 border-2 border-amber-400 shadow-md scale-105'
+                    : 'bg-amber-50 border border-amber-200 hover:scale-102'
+                }`}
+                title="Click to view Pending Requests"
+              >
                 <span className="block text-2xl font-extrabold text-amber-700">{pendingBookings.length}</span>
-                <span className="text-[11px] font-bold text-amber-800 uppercase tracking-wider">Pending</span>
-              </div>
-              <div className="p-4 rounded-2xl bg-green-50 border border-green-200 text-center">
+                <span className="text-[11px] font-bold text-amber-800 uppercase tracking-wider">Pending &rarr;</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('schedule')}
+                className={`p-4 rounded-2xl text-center transition-all cursor-pointer ${
+                  activeTab === 'schedule'
+                    ? 'bg-green-100 border-2 border-green-500 shadow-md scale-105'
+                    : 'bg-green-50 border border-green-200 hover:scale-102'
+                }`}
+                title="Click to view Schedule & Buffers"
+              >
                 <span className="block text-2xl font-extrabold text-green-700">{confirmedBookings.length}</span>
-                <span className="text-[11px] font-bold text-green-800 uppercase tracking-wider">Confirmed</span>
-              </div>
-              <div className="p-4 rounded-2xl bg-pink-50 border border-pink-200 text-center">
+                <span className="text-[11px] font-bold text-green-800 uppercase tracking-wider">Confirmed &rarr;</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('kids')}
+                className={`p-4 rounded-2xl text-center transition-all cursor-pointer ${
+                  activeTab === 'kids'
+                    ? 'bg-pink-100 border-2 border-glam-pink shadow-md scale-105'
+                    : 'bg-pink-50 border border-pink-200 hover:scale-102'
+                }`}
+                title="Click to view Kids Consultations"
+              >
                 <span className="block text-2xl font-extrabold text-glam-pinkDark">{kidsNeedCall.length}</span>
-                <span className="text-[11px] font-bold text-glam-plum uppercase tracking-wider">Kids to Call</span>
-              </div>
+                <span className="text-[11px] font-bold text-glam-plum uppercase tracking-wider">Kids to Call &rarr;</span>
+              </button>
             </div>
           </div>
 

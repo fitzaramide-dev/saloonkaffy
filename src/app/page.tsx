@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Sparkles, Phone, MessageCircle, ArrowRight, Check, CheckCircle, CheckCircle2, ShoppingBag, Droplets, Wind, Scissors, Baby, Heart, ShieldCheck, Coffee, Sun, ChevronDown, Copy, ExternalLink, Calendar, Clock, X, ZoomIn } from 'lucide-react';
+import { Sparkles, Phone, Menu, MessageCircle, ArrowRight, Check, CheckCircle, CheckCircle2, ShoppingBag, Droplets, Wind, Scissors, Baby, Heart, ShieldCheck, Coffee, Sun, ChevronDown, Copy, ExternalLink, Calendar, Clock, X, ZoomIn } from 'lucide-react';
 
 interface ServiceItem {
   id: string;
@@ -83,10 +83,39 @@ const LOOKBOOK_ITEMS = [
   { src: '/images/kids-4.jpg', title: 'Protective Kids Cornrows', desc: 'Crisp, durable straight-back cornrows designed for school and play.', tag: 'School & Play', category: 'kids', price: 'Call to Discuss' },
 ];
 
+
+const FAQS = [
+  {
+    q: 'Where is Kaffy Saloon located and how do I get there?',
+    a: 'We are located at 40, Anfield, Flat 2, Triq Brunzar, Santa Venera, Malta. We operate a dedicated private rooftop penthouse studio with plenty of free residential street parking right outside.'
+  },
+  {
+    q: 'Can I bring my own hair extensions (BYOH)?',
+    a: 'Absolutely! You are warmly welcome to bring your own hair packs (BYOH) in your preferred brand, length, and color. If you prefer us to provide hair, we also stock premium pre-stretched braiding hair and bohemian curls in-studio.'
+  },
+  {
+    q: 'What is the 24-hour advance booking rule?',
+    a: 'All online appointments must be booked at least 24 hours in advance so Kaffy can prepare the studio and sanitize tools. For same-day emergency requests, please message Kaffy directly on WhatsApp (+356 7756 7349).'
+  },
+  {
+    q: 'How does payment and the 50% deposit option work?',
+    a: 'During booking, you can choose to pay a 50% deposit to secure your slot, or choose to pay in full at the studio once your hairstyle is complete. We accept cash and Revolut.'
+  },
+  {
+    q: 'How should I prepare my hair before arriving?',
+    a: 'Please arrive with your hair thoroughly washed, detangled, and blown out straight, free of heavy oils or butter. If you would prefer us to wash or blow out your hair, simply check our Care & Prep add-ons during booking.'
+  },
+  {
+    q: 'How do kids braiding appointments work?',
+    a: 'Because young scalps are sensitive, we do not book kids styles blindly. Parents can submit a free Phone Consultation request. Kaffy will call or WhatsApp you to discuss your child\'s age, hair texture, and desired style to agree on a custom price and gentle timing.'
+  }
+];
+
 export default function HomePage() {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [copySuccess, setCopySuccess] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Booking Modal State
   const [isBookingOpen, setIsBookingOpen] = useState(false);
@@ -239,7 +268,7 @@ export default function HomePage() {
             <Link href="/portal" className="text-glam-pinkDark hover:text-glam-pink font-bold">Client Portal</Link>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <a href="tel:+35677567349" className="p-2.5 rounded-full border border-glam-border bg-white text-glam-plum hover:text-glam-pinkDark hover:border-glam-pink transition-all shadow-sm hidden sm:inline-flex" title="Call Kaffy">
               <Phone className="w-4 h-4" />
             </a>
@@ -249,13 +278,63 @@ export default function HomePage() {
                 setIsBookingOpen(true);
                 setBookingSuccess(false);
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full pink-gradient-btn text-white text-xs font-bold tracking-wider uppercase transition-all shadow-md hover:shadow-lg hover:scale-105"
+              className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-2.5 rounded-full pink-gradient-btn text-white text-[11px] sm:text-xs font-bold tracking-wider uppercase transition-all shadow-md hover:shadow-lg hover:scale-105"
             >
               <Calendar className="w-4 h-4" />
               <span>Book Appointment</span>
             </button>
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2.5 rounded-full border border-glam-border bg-white text-glam-plum hover:text-glam-pink md:hidden flex items-center justify-center transition-colors"
+              aria-label="Toggle Navigation Menu"
+            >
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Slide-Down Navigation Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-white/95 backdrop-blur-xl border-b border-glam-border px-6 py-6 space-y-4 shadow-xl animate-in slide-in-from-top-4 duration-200">
+            <nav className="flex flex-col space-y-3 text-sm font-bold text-glam-plum">
+              <a href="#services" onClick={() => setIsMobileMenuOpen(false)} className="py-1 hover:text-glam-pink transition-colors">
+                Hairstyles & Pricing Menu
+              </a>
+              <a href="#hair-policy" onClick={() => setIsMobileMenuOpen(false)} className="py-1 hover:text-glam-pink transition-colors">
+                Hair Extensions (BYOH or Buy)
+              </a>
+              <a href="#lookbook" onClick={() => setIsMobileMenuOpen(false)} className="py-1 hover:text-glam-pink transition-colors">
+                Photo Lookbook
+              </a>
+              <a href="#experience" onClick={() => setIsMobileMenuOpen(false)} className="py-1 hover:text-glam-pink transition-colors">
+                The Penthouse Sanctuary
+              </a>
+              <a href="#location" onClick={() => setIsMobileMenuOpen(false)} className="py-1 hover:text-glam-pink transition-colors">
+                Location & Opening Hours
+              </a>
+              <a href="#faq" onClick={() => setIsMobileMenuOpen(false)} className="py-1 hover:text-glam-pink transition-colors">
+                Frequently Asked Questions (FAQ)
+              </a>
+            </nav>
+            <div className="pt-3 border-t border-glam-border flex items-center justify-between">
+              <Link
+                href="/portal"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-xs font-bold text-glam-pinkDark hover:text-glam-pink flex items-center gap-1.5"
+              >
+                <Sparkles className="w-4 h-4" /> VIP Client Portal
+              </Link>
+              <a
+                href="https://wa.me/35677567349"
+                target="_blank"
+                className="text-xs font-bold text-green-700 flex items-center gap-1.5"
+              >
+                <MessageCircle className="w-4 h-4 text-green-600" /> WhatsApp Kaffy
+              </a>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* HERO SECTION */}
@@ -367,18 +446,47 @@ export default function HomePage() {
                   We make your styling experience completely effortless. Have your favorite brand, color, or texture? You are warmly invited to bring your own packs. Need hair supplied? We stock premium pre-stretched braiding hair, curls for bohemian styles, and hair bundles right in our studio.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                  <div className="p-4 rounded-2xl bg-glam-page border border-glam-border space-y-1">
-                    <div className="font-bold text-glam-plum flex items-center gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-glam-pink" /> Bring Your Own (BYOH)
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setHairOption('byoh');
+                      setSelectedService(SERVICES[0]);
+                      setIsBookingOpen(true);
+                      setBookingSuccess(false);
+                    }}
+                    className="p-4 rounded-2xl bg-glam-page border-2 border-glam-border hover:border-glam-pink text-left transition-all group pop-card"
+                  >
+                    <div className="font-bold text-glam-plum flex items-center justify-between gap-2 text-sm">
+                      <span className="flex items-center gap-2 group-hover:text-glam-pinkDark transition-colors">
+                        <CheckCircle className="w-4 h-4 text-glam-pink" /> Bring Your Own (BYOH)
+                      </span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-glam-pinkDark bg-white px-2 py-0.5 rounded-full border border-glam-pink/30 group-hover:bg-glam-pink group-hover:text-white transition-colors">
+                        Select & Book &rarr;
+                      </span>
                     </div>
-                    <p className="text-xs text-glam-muted">Bring your preferred brand, length, or custom colors.</p>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-glam-page border border-glam-border space-y-1">
-                    <div className="font-bold text-glam-plum flex items-center gap-2 text-sm">
-                      <ShoppingBag className="w-4 h-4 text-glam-pink" /> Buy In-Studio
+                    <p className="text-xs text-glam-muted mt-1">Bring your preferred brand, length, or custom colors.</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setHairOption('in_studio');
+                      setSelectedService(SERVICES[0]);
+                      setIsBookingOpen(true);
+                      setBookingSuccess(false);
+                    }}
+                    className="p-4 rounded-2xl bg-glam-page border-2 border-glam-border hover:border-glam-pink text-left transition-all group pop-card"
+                  >
+                    <div className="font-bold text-glam-plum flex items-center justify-between gap-2 text-sm">
+                      <span className="flex items-center gap-2 group-hover:text-glam-pinkDark transition-colors">
+                        <ShoppingBag className="w-4 h-4 text-glam-pink" /> Buy In-Studio
+                      </span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-glam-pinkDark bg-white px-2 py-0.5 rounded-full border border-glam-pink/30 group-hover:bg-glam-pink group-hover:text-white transition-colors">
+                        Select & Book &rarr;
+                      </span>
                     </div>
-                    <p className="text-xs text-glam-muted">Top-grade X-Pression, extensions, and curly packs ready on site.</p>
-                  </div>
+                    <p className="text-xs text-glam-muted mt-1">Top-grade X-Pression, extensions, and curly packs ready on site.</p>
+                  </button>
                 </div>
               </div>
 
@@ -779,6 +887,71 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* FAQ ACCORDION SECTION */}
+      <section id="faq" className="py-20 lg:py-28 relative bg-glam-section border-t border-glam-border">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-4 mb-12">
+            <span className="text-xs uppercase tracking-[0.25em] text-glam-pinkDark font-extrabold bg-white px-4 py-1 rounded-full border border-glam-border shadow-sm">
+              Got Questions?
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-glam-plum font-bold">
+              Frequently Asked <span className="italic font-normal pink-gradient-text">Questions</span>
+            </h2>
+            <p className="text-glam-mocha text-sm max-w-lg mx-auto font-medium">
+              Everything you need to know about our Santa Venera penthouse salon, hair policies, and booking workflow.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {FAQS.map((faq, idx) => {
+              const isOpen = openFaqIndex === idx;
+              return (
+                <div
+                  key={idx}
+                  className="rounded-2xl border-2 border-glam-border bg-white overflow-hidden pop-card transition-all"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                    className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 font-serif text-base sm:text-lg font-bold text-glam-plum hover:text-glam-pinkDark transition-colors"
+                  >
+                    <span>{faq.q}</span>
+                    <span className={`p-1.5 rounded-full bg-glam-page text-glam-pinkDark shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 bg-glam-pink text-white' : ''}`}>
+                      <ChevronDown className="w-4 h-4" />
+                    </span>
+                  </button>
+                  {isOpen && (
+                    <div className="px-5 pb-5 sm:px-6 sm:pb-6 text-xs sm:text-sm text-glam-mocha leading-relaxed border-t border-glam-page pt-3 animate-in fade-in duration-200">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-12 p-6 rounded-3xl bg-white border-2 border-glam-border text-center space-y-3 pop-card">
+            <h3 className="font-serif text-lg font-bold text-glam-plum">Have another question not listed here?</h3>
+            <p className="text-xs text-glam-mocha">Kaffy is always happy to answer questions directly on WhatsApp or over the phone.</p>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+              <a
+                href="https://wa.me/35677567349?text=Hi%20Kaffy,%20I'd%20like%20to%20ask%20a%20question%20before%20booking%20my%20hair%20appointment!"
+                target="_blank"
+                className="px-5 py-2.5 rounded-full pink-gradient-btn text-white text-xs font-bold uppercase tracking-wider shadow-sm flex items-center gap-1.5"
+              >
+                <MessageCircle className="w-4 h-4" /> Message on WhatsApp
+              </a>
+              <a
+                href="tel:+35677567349"
+                className="px-5 py-2.5 rounded-full border border-glam-pink/40 bg-white hover:bg-glam-section text-glam-pinkDark text-xs font-bold uppercase tracking-wider shadow-sm flex items-center gap-1.5"
+              >
+                <Phone className="w-4 h-4" /> Call Studio
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* FOOTER */}
       <footer className="bg-glam-plum text-white border-t border-glam-border py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -791,6 +964,7 @@ export default function HomePage() {
               <a href="#services" className="hover:text-pink-300 transition-colors">Hairstyles</a>
               <a href="#hair-policy" className="hover:text-pink-300 transition-colors">Hair Extensions</a>
               <a href="#lookbook" className="hover:text-pink-300 transition-colors">Lookbook</a>
+              <a href="#faq" className="hover:text-pink-300 transition-colors">FAQ</a>
               <Link href="/portal" className="text-pink-300 hover:underline">Client Portal</Link>
               <Link href="/admin" className="text-white/60 hover:text-white">Admin Studio</Link>
             </div>
