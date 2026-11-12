@@ -46,6 +46,30 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className={`${playfair.variable} ${jakarta.variable} scroll-smooth`}>
         <body className="bg-glam-page text-glam-plum font-sans antialiased selection:bg-glam-pink selection:text-white overflow-x-hidden">
+          {/* Google Tag Manager (GTM) */}
+          <Script
+            id="google-tag-manager"
+            strategy="afterInteractive"
+          >
+            {`
+              (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+              })(window,document,'script','dataLayer','GTM-TV4WZ4RV');
+            `}
+          </Script>
+
+          {/* Google Tag Manager (noscript fallback) */}
+          <noscript>
+            <iframe
+              src="https://www.googletagmanager.com/ns.html?id=GTM-TV4WZ4RV"
+              height="0"
+              width="0"
+              style={{ display: 'none', visibility: 'hidden' }}
+            />
+          </noscript>
+
           {/* Google Analytics (GA4) */}
           <Script
             strategy="afterInteractive"
