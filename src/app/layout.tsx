@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import { Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
@@ -45,6 +46,24 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className={`${playfair.variable} ${jakarta.variable} scroll-smooth`}>
         <body className="bg-glam-page text-glam-plum font-sans antialiased selection:bg-glam-pink selection:text-white overflow-x-hidden">
+          {/* Google Analytics (GA4) */}
+          <Script
+            strategy="afterInteractive"
+            src="https://www.googletagmanager.com/gtag/js?id=G-56DC80JTCC"
+          />
+          <Script
+            id="google-analytics"
+            strategy="afterInteractive"
+          >
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-56DC80JTCC', {
+                page_path: window.location.pathname,
+              });
+            `}
+          </Script>
           {children}
         </body>
       </html>
