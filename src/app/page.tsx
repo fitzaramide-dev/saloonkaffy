@@ -15,6 +15,17 @@ interface ServiceItem {
   features: string[];
 }
 
+interface AddonItem {
+  name: string;
+  price: number;
+}
+
+const ADDON_OPTIONS: AddonItem[] = [
+  { name: 'Hair Washing & Conditioning', price: 15 },
+  { name: 'Blow Drying & Tension Stretch', price: 10 },
+  { name: 'Unbraiding Old Hair Takedown', price: 20 },
+];
+
 const SERVICES: ServiceItem[] = [
   {
     id: 'knotless-braids',
@@ -170,6 +181,14 @@ export default function HomePage() {
   const [selectedService, setSelectedService] = useState<ServiceItem>(SERVICES[0]);
   const [hairOption, setHairOption] = useState<'byoh' | 'in_studio'>('byoh');
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
+
+  // LIVE DYNAMIC PRICE & ADD-ONS ENGINE
+  const addonsTotal = selectedAddons.reduce((sum, name) => {
+    const item = ADDON_OPTIONS.find((a) => a.name === name);
+    return sum + (item ? item.price : 0);
+  }, 0);
+  const currentTotalPrice = selectedService.price + addonsTotal;
+  const currentDeposit = currentTotalPrice * 0.5;
   const [appointmentDate, setAppointmentDate] = useState('');
   const [appointmentTime, setAppointmentTime] = useState('10:00');
   const [paymentChoice, setPaymentChoice] = useState<'deposit_50' | 'full_at_salon'>('deposit_50');
@@ -270,7 +289,7 @@ export default function HomePage() {
           client_phone: phoneValidation.cleanPhone,
           service_id: selectedService.id,
           service_title: selectedService.title,
-          price: selectedService.price,
+          price: currentTotalPrice,
           payment_choice: paymentChoice,
           hair_option: hairOption,
           addons: selectedAddons,
@@ -294,7 +313,7 @@ export default function HomePage() {
         service: selectedService.title,
         date: appointmentDate,
         time: appointmentTime,
-        price: selectedService.price,
+        price: currentTotalPrice,
         hairOption: hairOption,
       });
       setBookingSuccess(true);
@@ -1153,8 +1172,15 @@ export default function HomePage() {
                 <h3 className="font-serif text-lg sm:text-2xl font-bold text-glam-plum truncate max-w-[240px] sm:max-w-md">
                   {selectedService.title}
                 </h3>
-                <div className="flex items-center gap-2 mt-0.5 text-xs text-glam-mocha">
-                  <span className="font-bold text-glam-pinkDark">From &euro;{selectedService.price}</span>
+                <div className="flex items-center flex-wrap gap-2 mt-0.5 text-xs text-glam-mocha">
+                  <span className="font-serif text-base sm:text-lg font-extrabold text-glam-pinkDark">
+                    &euro;{currentTotalPrice}
+                  </span>
+                  {addonsTotal > 0 && (
+                    <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-300">
+                      &euro;{selectedService.price} base + &euro;{addonsTotal} add-ons
+                    </span>
+                  )}
                   <span>&bull;</span>
                   <span>Est. {selectedService.duration}</span>
                 </div>
@@ -1312,25 +1338,33 @@ export default function HomePage() {
                   {/* Care & Prep Add-ons */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-glam-plum block">Care & Prep Add-Ons (Optional):</label>
-                    <div className="space-y-1.5 text-xs">
-                      {[
-                        { name: 'Hair Washing & Conditioning', price: 15 },
-                        { name: 'Blow Drying & Tension Stretch', price: 10 },
-                        { name: 'Unbraiding Old Hair Takedown', price: 20 },
-                      ].map((addon) => (
-                        <label key={addon.name} className="flex items-center justify-between p-2.5 rounded-xl border border-glam-border bg-glam-page/60 hover:bg-glam-page cursor-pointer">
-                          <span className="flex items-center gap-2 text-glam-plum font-semibold">
-                            <input
-                              type="checkbox"
-                              checked={selectedAddons.includes(addon.name)}
-                              onChange={() => toggleAddon(addon.name)}
-                              className="w-4 h-4 rounded border-glam-border text-glam-pink focus:ring-glam-pink"
-                            />
-                            {addon.name}
-                          </span>
-                          <span className="font-bold text-glam-pinkDark">+&euro;{addon.price}</span>
-                        </label>
-                      ))}
+                    <div className="space-y-2 text-xs">
+                      {ADDON_OPTIONS.map((addon) => {
+                        const isChecked = selectedAddons.includes(addon.name);
+                        return (
+                          <label
+                            key={addon.name}
+                            className={`flex items-center justify-between p-3 rounded-2xl border-2 transition-all cursor-pointer ${
+                              isChecked
+                                ? 'border-glam-pink bg-pink-50/70 font-bold text-glam-pinkDark shadow-sm'
+                                : 'border-glam-border bg-glam-page/60 hover:bg-glam-page text-glam-plum'
+                            }`}
+                          >
+                            <span className="flex items-center gap-2.5 font-semibold">
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => toggleAddon(addon.name)}
+                                className="w-4 h-4 rounded border-glam-border text-glam-pink focus:ring-glam-pink accent-glam-pink"
+                              />
+                              <span className={isChecked ? 'text-glam-pinkDark font-bold' : 'text-glam-plum'}>{addon.name}</span>
+                            </span>
+                            <span className={`font-bold ${isChecked ? 'text-glam-pinkDark' : 'text-glam-muted'}`}>
+                              +&euro;{addon.price}
+                            </span>
+                          </label>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -1379,7 +1413,7 @@ export default function HomePage() {
                       >
                         <div className="font-bold">Pay 50% Deposit</div>
                         <span className="text-[11px] font-semibold text-glam-pink block mt-0.5">
-                          &euro;{(selectedService.price * 0.5).toFixed(2)} to secure slot
+                          &euro;{currentDeposit.toFixed(2)} to secure slot
                         </span>
                       </button>
 
@@ -1394,9 +1428,36 @@ export default function HomePage() {
                       >
                         <div className="font-bold">Pay in Full at Salon</div>
                         <span className="text-[11px] text-glam-muted block mt-0.5">
-                          &euro;{selectedService.price} once hair is done
+                          &euro;{currentTotalPrice} once hair is done
                         </span>
                       </button>
+                    </div>
+                  </div>
+
+                  {/* Live Order Breakdown Summary */}
+                  <div className="p-4 rounded-2xl bg-glam-page border-2 border-glam-border space-y-2 text-xs">
+                    <div className="flex items-center justify-between text-glam-plum font-semibold">
+                      <span>{selectedService.title} (Base Service):</span>
+                      <span className="font-bold">&euro;{selectedService.price}</span>
+                    </div>
+
+                    {selectedAddons.map((addonName) => {
+                      const item = ADDON_OPTIONS.find((a) => a.name === addonName);
+                      return (
+                        <div key={addonName} className="flex items-center justify-between text-glam-pinkDark font-semibold">
+                          <span className="flex items-center gap-1.5">
+                            <Check className="w-3.5 h-3.5 text-glam-pink" /> {addonName}:
+                          </span>
+                          <span className="font-bold">+&euro;{item?.price || 0}</span>
+                        </div>
+                      );
+                    })}
+
+                    <div className="pt-2 border-t border-glam-border flex items-center justify-between text-sm font-bold text-glam-plum">
+                      <span>Total Estimated Price:</span>
+                      <span className="font-serif text-lg font-extrabold text-glam-pinkDark">
+                        &euro;{currentTotalPrice}
+                      </span>
                     </div>
                   </div>
 
@@ -1457,7 +1518,7 @@ export default function HomePage() {
                         <span>Transmitting to Database...</span>
                       </>
                     ) : (
-                      <span>Confirm & Request Appointment</span>
+                      <span>Confirm & Request Appointment (&euro;{currentTotalPrice})</span>
                     )}
                   </button>
                 </form>
