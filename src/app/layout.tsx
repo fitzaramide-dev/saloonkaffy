@@ -18,6 +18,15 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: 'Kaffy Saloon | Glamour Penthouse Hair Studio in Santa Venera, Malta',
   description: "Malta's boutique pink penthouse hair studio specializing in knotless braids, Ghana weaving, box braids, weaves, and gentle kids hair.",
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico' },
+    ],
+    apple: [
+      { url: '/icon.svg' },
+    ],
+  },
 };
 
 export const viewport: Viewport = {
